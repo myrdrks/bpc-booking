@@ -2,6 +2,8 @@
 
 # Konfiguration und Credentials
 config.php
+config-production.php
+config-ionos-production.php
 credentials/
 *.json
 
