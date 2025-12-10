@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # PHP-Apache Webserver
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bpc-buchung-web
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - buchung-network
+    restart: unless-stopped
+
+  # Composer für Abhängigkeiten
+  composer:
+    image: composer:latest
+    container_name: bpc-buchung-composer
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: install --ignore-platform-reqs
+    networks:
+      - buchung-network
+
+networks:
+  buchung-network:
+    name: buchung-network
+    external: false
+
+# Hinweise:
+# 1. MySQL läuft bereits auf dem Host (Port 3306)
+# 2. Stelle sicher, dass DB_HOST in config.php auf 'host.docker.internal' gesetzt ist
+# 3. Starte mit: docker compose up -d
+# 4. Öffne: http://localhost:8081
+# 5. Stoppe mit: docker compose down

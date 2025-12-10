@@ -1,0 +1,36 @@
+# .gitignore für Raumbuchungssystem
+
+# Konfiguration und Credentials
+config.php
+credentials/
+*.json
+
+# Logs
+logs/
+*.log
+
+# Uploads
+uploads/
+
+# Composer
+vendor/
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporäre Dateien
+*.tmp
+*.bak
+*.cache
+
+# Sensitive Daten
+.env

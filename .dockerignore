@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+DOCKER.md
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs (werden im Container neu erstellt)
+logs/
+*.log
+
+# Temporäre Dateien
+*.tmp
+*.bak
+*.cache
+
+# Composer (wird im Container installiert)
+vendor/
+
+# Credentials
+credentials/*.json
+!credentials/.gitkeep
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# README (nicht notwendig im Container)
+README.md
+RAEUME.md
+rooms.md
+
+# Node modules (falls vorhanden)
+node_modules/

@@ -1,0 +1,17 @@
+# MINIMAL .htaccess für IONOS
+# Bei Problemen: Diese Version verwenden
+
+# Nur die wichtigsten Dateien schützen
+<Files "config.php">
+    Require all denied
+</Files>
+
+# JSON und SQL blockieren
+<FilesMatch "\.(json|sql|log)$">
+    Require all denied
+</FilesMatch>
+
+# Markdown blockieren
+<FilesMatch "\.md$">
+    Require all denied
+</FilesMatch>

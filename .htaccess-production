@@ -1,0 +1,87 @@
+# Production .htaccess für IONOS
+
+# PHP-Einstellungen (falls erlaubt)
+<IfModule mod_php8.c>
+    php_flag display_errors Off
+    php_flag log_errors On
+    php_value error_log /pfad/zu/logs/php-error.log
+</IfModule>
+
+# Verzeichnisschutz: Credentials
+<Directory "credentials">
+    Require all denied
+</Directory>
+
+# Verzeichnisschutz: Database-Dateien
+<Files "*.sql">
+    Require all denied
+</Files>
+
+<Directory "database">
+    Require all denied
+</Directory>
+
+# Verzeichnisschutz: Logs
+<Directory "logs">
+    Require all denied
+</Directory>
+
+# Verzeichnisschutz: Config-Dateien
+<Files "config.php">
+    Require all denied
+</Files>
+
+# Git-Dateien schützen
+<FilesMatch "^\.git">
+    Require all denied
+</FilesMatch>
+
+# Composer-Dateien schützen (falls verwendet)
+<FilesMatch "composer\.(json|lock)">
+    Require all denied
+</FilesMatch>
+
+# Markdown-Dateien schützen
+<FilesMatch "\.md$">
+    Require all denied
+</FilesMatch>
+
+# PHP-Dateien in bestimmten Verzeichnissen blockieren
+<Directory "uploads">
+    <Files "*.php">
+        Require all denied
+    </Files>
+</Directory>
+
+# HTTPS erzwingen (optional, je nach IONOS-Setup)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Standard-Fehlerseiten
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+
+# Kompression aktivieren (Performance)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Browser-Caching (Performance)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
