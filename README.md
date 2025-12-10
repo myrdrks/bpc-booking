@@ -224,13 +224,14 @@ echo password_hash('IhrNeuesPasswort', PASSWORD_DEFAULT);
 5. Bestätigte Buchungen werden automatisch im Google Calendar eingetragen
 6. Kunden erhalten automatisch eine Bestätigungs-E-Mail
 
-### iframe-Einbindung
+### iframe-Einbindung (WordPress & andere CMS)
 
-Für jeden Raum können Sie das Buchungsformular in eine bestehende Webseite einbinden:
+Für jeden Raum können Sie das Buchungsformular in eine bestehende Webseite einbinden. 
 
+**Einfache Einbindung (statische Höhe):**
 ```html
 <iframe 
-    src="https://ihre-domain.de/buchung/index.php?room_id=1" 
+    src="https://ihre-booking-domain.de?room_id=1" 
     width="100%" 
     height="1200" 
     frameborder="0"
@@ -238,10 +239,64 @@ Für jeden Raum können Sie das Buchungsformular in eine bestehende Webseite ein
 </iframe>
 ```
 
-**Empfohlene iframe-Höhen:**
-- Desktop: 1200px
-- Tablet: 1400px
-- Mobile: 1600px (oder responsive mit JavaScript)
+**Empfohlene Einbindung (dynamische Höhenanpassung):**
+
+Dieser Code passt die iframe-Höhe automatisch an den Inhalt an und funktioniert perfekt in WordPress:
+
+```html
+<style>
+  /* Optional: Sanfte Animation bei Höhenänderung */
+  #buchung { width: 100%; border: 0; transition: height .2s ease; }
+</style>
+
+<iframe
+  id="buchung"
+  src="https://ihre-booking-domain.de?room_id=1"
+  width="100%"
+  height="0"
+  loading="lazy"
+  style="background: transparent;"
+></iframe>
+
+<script>
+  const iframe = document.getElementById('buchung');
+
+  // Erlaubte Origin(s) der iframe-Seite – anpassen!
+  const ALLOWED_ORIGINS = new Set([
+    'https://ihre-booking-domain.de',
+    'https://ihre-hauptdomain.de'
+  ]);
+
+  window.addEventListener('message', (event) => {
+    // Origin-Prüfung für Sicherheit
+    if (!ALLOWED_ORIGINS.has(event.origin)) return;
+
+    const data = event.data || {};
+    if (data.type !== 'IFRAME_HEIGHT') return;
+
+    // Falls mehrere iframes, via id zuordnen
+    const target = (data.id && document.getElementById(data.id)) || iframe;
+
+    if (target && typeof data.height === 'number' && data.height > 0) {
+      target.style.height = data.height + 'px';
+    }
+  });
+
+  // Erste Anpassung, sobald das iframe geladen ist
+  iframe.addEventListener('load', () => {
+    // Optional: Startsignal an Child senden
+  });
+</script>
+```
+
+**WordPress-Integration:**
+1. Fügen Sie den Code in einen HTML-Block ein
+2. Oder verwenden Sie das Plugin "Insert Headers and Footers" für den Script-Teil
+3. Passen Sie die `ALLOWED_ORIGINS` an Ihre Domain an
+4. Ändern Sie `room_id=1` für verschiedene Räume (1=CLUB27, 2=Tagungsraum, 3=Club-Lounge)
+
+**Mehrere Räume auf einer Seite:**
+Geben Sie jedem iframe eine eigene ID (`buchung-1`, `buchung-2`, etc.)
 
 ### Raum-spezifische Seiten
 
