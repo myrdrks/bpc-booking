@@ -133,14 +133,27 @@ class Booking {
     /**
      * Buchungen nach Status abrufen
      */
-    public function getBookingsByStatus($status = 'pending', $limit = 100) {
+    public function getBookingsByStatus($status = 'pending', $page = 1, $perPage = 20) {
+        $offset = ($page - 1) * $perPage;
+        
         $sql = "SELECT b.*, r.name as room_name
                 FROM bookings b
                 JOIN rooms r ON b.room_id = r.id
                 WHERE b.status = ?
                 ORDER BY b.created_at DESC
-                LIMIT ?";
-        return $this->db->fetchAll($sql, [$status, $limit]);
+                LIMIT ? OFFSET ?";
+        return $this->db->fetchAll($sql, [$status, $perPage, $offset]);
+    }
+    
+    /**
+     * Anzahl der Buchungen nach Status
+     */
+    public function getBookingsCountByStatus($status) {
+        $sql = "SELECT COUNT(*) as count
+                FROM bookings
+                WHERE status = ?";
+        $result = $this->db->fetchOne($sql, [$status]);
+        return (int)($result['count'] ?? 0);
     }
     
     /**
