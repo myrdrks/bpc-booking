@@ -217,8 +217,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 // Daten laden
 $bookingModel = new Booking();
 $pendingBookings = $bookingModel->getBookingsByStatus('pending');
-$confirmedBookings = $bookingModel->getBookingsByStatus('confirmed', 20);
-$recentBookings = $bookingModel->getBookingsByStatus('confirmed', 10);
+
+// Pagination für bestätigte Buchungen
+$confirmedPage = max(1, intval($_GET['confirmed_page'] ?? 1));
+$perPage = 20;
+$confirmedBookings = $bookingModel->getBookingsByStatus('confirmed', $confirmedPage, $perPage);
+$totalConfirmed = $bookingModel->getBookingsCountByStatus('confirmed');
+$totalConfirmedPages = ceil($totalConfirmed / $perPage);
+
+$recentBookings = $bookingModel->getBookingsByStatus('confirmed', 1, 10);
 
 // Admin Layout verwenden
 require_once __DIR__ . '/admin-header.php';
@@ -303,7 +310,7 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
             </div>
             <div class="stat-card">
                 <h3>Bestätigte Buchungen</h3>
-                <div class="value"><?= count($confirmedBookings) ?></div>
+                <div class="value"><?= $totalConfirmed ?></div>
             </div>
         </div>
         
@@ -428,6 +435,59 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                
+                <?php if ($totalConfirmedPages > 1): ?>
+                    <div class="pagination" style="margin-top: 1.5rem; text-align: center;">
+                        <?php if ($confirmedPage > 1): ?>
+                            <a href="?confirmed_page=<?= $confirmedPage - 1 ?>" class="btn btn-sm btn-secondary">
+                                « Zurück
+                            </a>
+                        <?php endif; ?>
+                        
+                        <?php
+                        $startPage = max(1, $confirmedPage - 2);
+                        $endPage = min($totalConfirmedPages, $confirmedPage + 2);
+                        
+                        if ($startPage > 1): ?>
+                            <a href="?confirmed_page=1" class="btn btn-sm btn-secondary">1</a>
+                            <?php if ($startPage > 2): ?>
+                                <span style="margin: 0 0.5rem;">...</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        
+                        <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                            <?php if ($i == $confirmedPage): ?>
+                                <span class="btn btn-sm btn-primary" style="margin: 0 0.25rem;">
+                                    <?= $i ?>
+                                </span>
+                            <?php else: ?>
+                                <a href="?confirmed_page=<?= $i ?>" class="btn btn-sm btn-secondary" style="margin: 0 0.25rem;">
+                                    <?= $i ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                        
+                        <?php if ($endPage < $totalConfirmedPages): ?>
+                            <?php if ($endPage < $totalConfirmedPages - 1): ?>
+                                <span style="margin: 0 0.5rem;">...</span>
+                            <?php endif; ?>
+                            <a href="?confirmed_page=<?= $totalConfirmedPages ?>" class="btn btn-sm btn-secondary">
+                                <?= $totalConfirmedPages ?>
+                            </a>
+                        <?php endif; ?>
+                        
+                        <?php if ($confirmedPage < $totalConfirmedPages): ?>
+                            <a href="?confirmed_page=<?= $confirmedPage + 1 ?>" class="btn btn-sm btn-secondary">
+                                Weiter »
+                            </a>
+                        <?php endif; ?>
+                        
+                        <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+                            Seite <?= $confirmedPage ?> von <?= $totalConfirmedPages ?> 
+                            (<?= $totalConfirmed ?> Buchungen gesamt)
+                        </div>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
     
