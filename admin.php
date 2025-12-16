@@ -216,13 +216,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // Daten laden
 $bookingModel = new Booking();
-$pendingBookings = $bookingModel->getBookingsByStatus('pending');
+$roomModel = new Room();
+$allRooms = $roomModel->getAllRooms();
+
+// Filter und Sortierung aus URL-Parametern
+$filters = [
+    'room_id' => $_GET['room_id'] ?? '',
+    'date_from' => $_GET['date_from'] ?? '',
+    'date_to' => $_GET['date_to'] ?? '',
+    'search' => $_GET['search'] ?? ''
+];
+
+$sortBy = $_GET['sort_by'] ?? 'created_at';
+$sortOrder = $_GET['sort_order'] ?? 'DESC';
+
+$pendingBookings = $bookingModel->getBookingsByStatus('pending', 1, 100, $filters, $sortBy, $sortOrder);
 
 // Pagination für bestätigte Buchungen
 $confirmedPage = max(1, intval($_GET['confirmed_page'] ?? 1));
 $perPage = 20;
-$confirmedBookings = $bookingModel->getBookingsByStatus('confirmed', $confirmedPage, $perPage);
-$totalConfirmed = $bookingModel->getBookingsCountByStatus('confirmed');
+$confirmedBookings = $bookingModel->getBookingsByStatus('confirmed', $confirmedPage, $perPage, $filters, $sortBy, $sortOrder);
+$totalConfirmed = $bookingModel->getBookingsCountByStatus('confirmed', $filters);
 $totalConfirmedPages = ceil($totalConfirmed / $perPage);
 
 $recentBookings = $bookingModel->getBookingsByStatus('confirmed', 1, 10);
@@ -313,6 +327,84 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
                 <div class="value"><?= $totalConfirmed ?></div>
             </div>
         </div>
+        
+        <!-- Filter und Sortierung -->
+        <section class="booking-section" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+            <form method="GET" action="admin.php" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                <div>
+                    <label for="search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Suche</label>
+                    <input type="text" 
+                           id="search" 
+                           name="search" 
+                           placeholder="Name, E-Mail oder Raum"
+                           value="<?= h($_GET['search'] ?? '') ?>"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <div>
+                    <label for="room_id" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Raum</label>
+                    <select id="room_id" 
+                            name="room_id"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">Alle Räume</option>
+                        <?php foreach ($allRooms as $room): ?>
+                            <option value="<?= $room['id'] ?>" <?= ($filters['room_id'] == $room['id']) ? 'selected' : '' ?>>
+                                <?= h($room['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="date_from" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Von Datum</label>
+                    <input type="date" 
+                           id="date_from" 
+                           name="date_from"
+                           value="<?= h($_GET['date_from'] ?? '') ?>"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <div>
+                    <label for="date_to" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Bis Datum</label>
+                    <input type="date" 
+                           id="date_to" 
+                           name="date_to"
+                           value="<?= h($_GET['date_to'] ?? '') ?>"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <div>
+                    <label for="sort_by" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Sortieren nach</label>
+                    <select id="sort_by" 
+                            name="sort_by"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="created_at" <?= $sortBy === 'created_at' ? 'selected' : '' ?>>Erstellt am</option>
+                        <option value="booking_date" <?= $sortBy === 'booking_date' ? 'selected' : '' ?>>Buchungsdatum</option>
+                        <option value="customer_name" <?= $sortBy === 'customer_name' ? 'selected' : '' ?>>Kundenname</option>
+                        <option value="room_name" <?= $sortBy === 'room_name' ? 'selected' : '' ?>>Raumname</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="sort_order" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Reihenfolge</label>
+                    <select id="sort_order" 
+                            name="sort_order"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="DESC" <?= $sortOrder === 'DESC' ? 'selected' : '' ?>>Absteigend</option>
+                        <option value="ASC" <?= $sortOrder === 'ASC' ? 'selected' : '' ?>>Aufsteigend</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        Filtern
+                    </button>
+                    <a href="admin.php" class="btn btn-secondary" style="flex: 1; text-align: center; text-decoration: none;">
+                        Zurücksetzen
+                    </a>
+                </div>
+            </form>
+        </section>
         
         <!-- Offene Buchungsanfragen -->
         <section class="booking-section">
@@ -436,10 +528,17 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
                     </tbody>
                 </table>
                 
-                <?php if ($totalConfirmedPages > 1): ?>
+                <?php 
+                // Erstelle Query-String für Pagination (behält Filter bei)
+                $queryParams = $_GET;
+                unset($queryParams['confirmed_page']);
+                $queryString = http_build_query($queryParams);
+                $pageLink = $queryString ? '&' . $queryString : '';
+                
+                if ($totalConfirmedPages > 1): ?>
                     <div class="pagination" style="margin-top: 1.5rem; text-align: center;">
                         <?php if ($confirmedPage > 1): ?>
-                            <a href="?confirmed_page=<?= $confirmedPage - 1 ?>" class="btn btn-sm btn-secondary">
+                            <a href="?confirmed_page=<?= $confirmedPage - 1 ?><?= $pageLink ?>" class="btn btn-sm btn-secondary">
                                 « Zurück
                             </a>
                         <?php endif; ?>
@@ -449,7 +548,7 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
                         $endPage = min($totalConfirmedPages, $confirmedPage + 2);
                         
                         if ($startPage > 1): ?>
-                            <a href="?confirmed_page=1" class="btn btn-sm btn-secondary">1</a>
+                            <a href="?confirmed_page=1<?= $pageLink ?>" class="btn btn-sm btn-secondary">1</a>
                             <?php if ($startPage > 2): ?>
                                 <span style="margin: 0 0.5rem;">...</span>
                             <?php endif; ?>
@@ -461,7 +560,7 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
                                     <?= $i ?>
                                 </span>
                             <?php else: ?>
-                                <a href="?confirmed_page=<?= $i ?>" class="btn btn-sm btn-secondary" style="margin: 0 0.25rem;">
+                                <a href="?confirmed_page=<?= $i ?><?= $pageLink ?>" class="btn btn-sm btn-secondary" style="margin: 0 0.25rem;">
                                     <?= $i ?>
                                 </a>
                             <?php endif; ?>
@@ -471,13 +570,13 @@ renderAdminHeader('Buchungsverwaltung', 'bookings');
                             <?php if ($endPage < $totalConfirmedPages - 1): ?>
                                 <span style="margin: 0 0.5rem;">...</span>
                             <?php endif; ?>
-                            <a href="?confirmed_page=<?= $totalConfirmedPages ?>" class="btn btn-sm btn-secondary">
+                            <a href="?confirmed_page=<?= $totalConfirmedPages ?><?= $pageLink ?>" class="btn btn-sm btn-secondary">
                                 <?= $totalConfirmedPages ?>
                             </a>
                         <?php endif; ?>
                         
                         <?php if ($confirmedPage < $totalConfirmedPages): ?>
-                            <a href="?confirmed_page=<?= $confirmedPage + 1 ?>" class="btn btn-sm btn-secondary">
+                            <a href="?confirmed_page=<?= $confirmedPage + 1 ?><?= $pageLink ?>" class="btn btn-sm btn-secondary">
                                 Weiter »
                             </a>
                         <?php endif; ?>

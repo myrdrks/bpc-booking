@@ -133,26 +133,94 @@ class Booking {
     /**
      * Buchungen nach Status abrufen
      */
-    public function getBookingsByStatus($status = 'pending', $page = 1, $perPage = 20) {
+    public function getBookingsByStatus($status = 'pending', $page = 1, $perPage = 20, $filters = [], $sortBy = 'created_at', $sortOrder = 'DESC') {
         $offset = ($page - 1) * $perPage;
         
         $sql = "SELECT b.*, r.name as room_name
                 FROM bookings b
                 JOIN rooms r ON b.room_id = r.id
-                WHERE b.status = ?
-                ORDER BY b.created_at DESC
-                LIMIT ? OFFSET ?";
-        return $this->db->fetchAll($sql, [$status, $perPage, $offset]);
+                WHERE b.status = ?";
+        
+        $params = [$status];
+        
+        // Filter anwenden
+        if (!empty($filters['room_id'])) {
+            $sql .= " AND b.room_id = ?";
+            $params[] = $filters['room_id'];
+        }
+        
+        if (!empty($filters['date_from'])) {
+            $sql .= " AND b.booking_date >= ?";
+            $params[] = $filters['date_from'];
+        }
+        
+        if (!empty($filters['date_to'])) {
+            $sql .= " AND b.booking_date <= ?";
+            $params[] = $filters['date_to'];
+        }
+        
+        if (!empty($filters['search'])) {
+            $sql .= " AND (b.customer_name LIKE ? OR b.customer_email LIKE ? OR r.name LIKE ?)";
+            $searchTerm = '%' . $filters['search'] . '%';
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+        
+        // Sortierung
+        $allowedSort = ['created_at', 'booking_date', 'customer_name', 'room_name'];
+        $sortBy = in_array($sortBy, $allowedSort) ? $sortBy : 'created_at';
+        $sortOrder = strtoupper($sortOrder) === 'ASC' ? 'ASC' : 'DESC';
+        
+        if ($sortBy === 'room_name') {
+            $sql .= " ORDER BY r.name $sortOrder";
+        } else {
+            $sql .= " ORDER BY b.$sortBy $sortOrder";
+        }
+        
+        $sql .= " LIMIT ? OFFSET ?";
+        $params[] = $perPage;
+        $params[] = $offset;
+        
+        return $this->db->fetchAll($sql, $params);
     }
     
     /**
      * Anzahl der Buchungen nach Status
      */
-    public function getBookingsCountByStatus($status) {
+    public function getBookingsCountByStatus($status, $filters = []) {
         $sql = "SELECT COUNT(*) as count
-                FROM bookings
-                WHERE status = ?";
-        $result = $this->db->fetchOne($sql, [$status]);
+                FROM bookings b
+                JOIN rooms r ON b.room_id = r.id
+                WHERE b.status = ?";
+        
+        $params = [$status];
+        
+        // Filter anwenden (gleiche Logik wie in getBookingsByStatus)
+        if (!empty($filters['room_id'])) {
+            $sql .= " AND b.room_id = ?";
+            $params[] = $filters['room_id'];
+        }
+        
+        if (!empty($filters['date_from'])) {
+            $sql .= " AND b.booking_date >= ?";
+            $params[] = $filters['date_from'];
+        }
+        
+        if (!empty($filters['date_to'])) {
+            $sql .= " AND b.booking_date <= ?";
+            $params[] = $filters['date_to'];
+        }
+        
+        if (!empty($filters['search'])) {
+            $sql .= " AND (b.customer_name LIKE ? OR b.customer_email LIKE ? OR r.name LIKE ?)";
+            $searchTerm = '%' . $filters['search'] . '%';
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+        
+        $result = $this->db->fetchOne($sql, $params);
         return (int)($result['count'] ?? 0);
     }
     
