@@ -67,6 +67,12 @@ try {
     $html .= '<div class="detail-section">';
     $html .= '<h3>Preisübersicht</h3>';
     $html .= '<p><strong>Raumpreis:</strong> ' . number_format($booking['room_price'], 2, ',', '.') . ' €</p>';
+    
+    // Zeige Mitgliederrabatt falls vorhanden
+    if (isset($booking['member_discount']) && $booking['member_discount'] > 0) {
+        $html .= '<p><strong>Mitglieder-Rabatt:</strong> <span style="color:#28a745;">-' . number_format($booking['member_discount'], 2, ',', '.') . ' €</span></p>';
+    }
+    
     $html .= '<p><strong>Extras:</strong> ' . number_format($booking['options_price'], 2, ',', '.') . ' €</p>';
     $html .= '<p style="font-size:1.2em;color:#667eea;"><strong>Gesamtpreis:</strong> ' . number_format($booking['total_price'], 2, ',', '.') . ' €</p>';
     $html .= '</div>';

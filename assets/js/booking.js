@@ -419,6 +419,7 @@ class PriceCalculator {
         this.roomPrice = parseFloat(roomPrice);
         this.roomData = roomData;
         this.optionsPrice = 0;
+        this.memberDiscount = 0;
         this.totalPrice = this.roomPrice;
     }
     
@@ -433,13 +434,25 @@ class PriceCalculator {
             this.optionsPrice += price * quantity;
         });
         
-        this.totalPrice = this.roomPrice + this.optionsPrice;
+        // Berechne Gesamtpreis: Raummiete - Rabatt + Extras
+        this.totalPrice = this.roomPrice - this.memberDiscount + this.optionsPrice;
         this.updateDisplay();
     }
     
     updateDisplay() {
         document.getElementById('room-price-display').textContent = 
             this.formatPrice(this.roomPrice);
+        
+        // Rabatt-Zeile ein-/ausblenden
+        const discountRow = document.getElementById('member-discount-row');
+        if (this.memberDiscount > 0) {
+            discountRow.style.display = 'flex';
+            document.getElementById('member-discount-display').textContent = 
+                '-' + this.formatPrice(this.memberDiscount);
+        } else {
+            discountRow.style.display = 'none';
+        }
+        
         document.getElementById('options-price-display').textContent = 
             this.formatPrice(this.optionsPrice);
         document.getElementById('total-price-display').textContent = 

@@ -328,11 +328,15 @@ $roomPrice = $room[$isMember ? 'price_member' : 'price_non_member'];
                         <strong>Preise CLUB27:</strong><br>
                         <span class="info-text">
                             <?php if ($isMember): ?>
-                                ✅ Als Mitglied zahlen Sie keine Raummiete!<br>
-                                💡 Bitte wählen Sie die Servicepauschale (250€) bei den Extras aus.
+                                ✅ Als Mitglied erhalten Sie 250€ Rabatt!<br>
+                                💶 Raummiete: 750€ - Rabatt: 250€ = 500€<br>
+                                💡 Bitte wählen Sie die Servicepauschale (250€) bei den Extras aus.<br>
+                                📊 Gesamt: 750€ (inkl. Service)
                             <?php else: ?>
-                                💶 Raummiete: 500€<br>
-                                💡 Mitglied werden und Raummiete sparen!
+                                💶 Raummiete: 750€<br>
+                                💡 Servicepauschale (250€) nicht vergessen!<br>
+                                📊 Gesamt: 1000€ (inkl. Service)<br>
+                                ✨ Mitglied werden und 250€ sparen!
                             <?php endif; ?>
                         </span>
                     </div>
@@ -356,6 +360,10 @@ $roomPrice = $room[$isMember ? 'price_member' : 'price_non_member'];
                     <div class="price-row">
                         <span>Raummiete:</span>
                         <span id="room-price-display"><?= number_format($roomPrice, 2, ',', '.') ?> €</span>
+                    </div>
+                    <div class="price-row" id="member-discount-row" style="display: none;">
+                        <span>Mitglieder-Rabatt:</span>
+                        <span id="member-discount-display" style="color: #28a745;">-250,00 €</span>
                     </div>
                     <div class="price-row">
                         <span>Extras:</span>
@@ -587,10 +595,14 @@ $roomPrice = $room[$isMember ? 'price_member' : 'price_non_member'];
             const endTime = document.getElementById('end_time').value;
             
             let newPrice = 0;
+            let discount = 0;
             
             if (roomData.name === 'CLUB27') {
-                // CLUB27: Mitglieder 0€, Nicht-Mitglieder 500€
-                newPrice = isMember ? 0 : roomData.priceNonMember;
+                // CLUB27: Grundpreis 750€, Mitglieder erhalten 250€ Rabatt
+                newPrice = 750;
+                if (isMember) {
+                    discount = 250;
+                }
             } else if (roomData.name === 'Tagungsraum' || roomData.name === 'Club-Lounge') {
                 if (!isMember && startTime && endTime) {
                     // Stundenweise berechnen
@@ -608,6 +620,7 @@ $roomPrice = $room[$isMember ? 'price_member' : 'price_non_member'];
             }
             
             priceCalculator.roomPrice = newPrice;
+            priceCalculator.memberDiscount = discount;
             priceCalculator.updateOptions();
         }
         

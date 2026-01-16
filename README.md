@@ -6,7 +6,7 @@ Ein vollständiges PHP-basiertes Raumbuchungssystem mit Google Calendar Integrat
 
 ✅ **3 Räume** - CLUB27, Tagungsraum & Club-Lounge
 ✅ **Mitglieder-Preismodelle:**
-   - CLUB27: Mitglieder 0€ Raummiete (+ 250€ Servicepauschale), Nicht-Mitglieder 500€
+   - CLUB27: Mitglieder 750€ Raummiete (- 250€ Rabatt) + 250€ Service = 750€ gesamt, Nicht-Mitglieder 750€ + 250€ Service = 1000€
    - Tagungsraum: Mitglieder kostenfrei, Nicht-Mitglieder 100€/1. Std. + 50€/weitere Std.
    - Club-Lounge: Mitglieder kostenfrei, Nicht-Mitglieder 100€/1. Std. + 50€/weitere Std.
 ✅ **Catering-Optionen** (Brötchen, Sektempfang, Fingerfood, Heißgetränke, etc.)

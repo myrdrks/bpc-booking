@@ -18,9 +18,9 @@ class Booking {
         $sql = "INSERT INTO bookings (
             room_id, booking_date, start_time, end_time,
             customer_name, customer_email, customer_phone,
-            is_member, num_persons, room_price, options_price,
+            is_member, num_persons, room_price, member_discount, options_price,
             total_price, notes, confirmation_token, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
         
         $params = [
             $data['room_id'],
@@ -33,6 +33,7 @@ class Booking {
             $data['is_member'] ? 1 : 0,
             $data['num_persons'] ?? null,
             $data['room_price'],
+            $data['member_discount'] ?? 0,
             $data['options_price'] ?? 0,
             $data['total_price'],
             $data['notes'] ?? null,

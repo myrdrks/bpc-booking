@@ -116,11 +116,15 @@ try {
     
     // Preisberechnung
     $roomPrice = 0;
+    $memberDiscount = 0;
     
     // Spezielle Preislogik für jeden Raum
     if ($room['name'] === 'CLUB27') {
-        // CLUB27: Mitglieder zahlen nur Servicepauschale (250€), Nicht-Mitglieder zahlen Raummiete (500€)
-        $roomPrice = $isMember ? 0 : $room['price_non_member'];
+        // CLUB27: Grundpreis 750€, Mitglieder erhalten 250€ Rabatt
+        $roomPrice = 750;
+        if ($isMember) {
+            $memberDiscount = 250;
+        }
     } else if ($room['name'] === 'Tagungsraum' || $room['name'] === 'Club-Lounge') {
         // Tagungsraum & Club-Lounge: Mitglieder kostenfrei, Nicht-Mitglieder stundenweise
         if (!$isMember) {
@@ -172,7 +176,7 @@ try {
         }
     }
     
-    $totalPrice = $roomPrice + $optionsPrice;
+    $totalPrice = $roomPrice - $memberDiscount + $optionsPrice;
     
     // Buchung erstellen
     $db = Database::getInstance();
@@ -190,6 +194,7 @@ try {
             'is_member' => $isMember,
             'num_persons' => $numPersons,
             'room_price' => $roomPrice,
+            'member_discount' => $memberDiscount,
             'options_price' => $optionsPrice,
             'total_price' => $totalPrice,
             'notes' => $notes

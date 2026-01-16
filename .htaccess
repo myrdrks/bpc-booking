@@ -7,29 +7,28 @@
     php_value error_log /pfad/zu/logs/php-error.log
 </IfModule>
 
-# Verzeichnisschutz: Credentials
-<Directory "credentials">
-    Require all denied
-</Directory>
+# Verzeichnisschutz: Credentials-Verzeichnis
+RedirectMatch 403 ^/credentials/
 
 # Verzeichnisschutz: Database-Dateien
 <Files "*.sql">
     Require all denied
 </Files>
 
-<Directory "database">
-    Require all denied
-</Directory>
+# Verzeichnisschutz: Database-Verzeichnis
+RedirectMatch 403 ^/database/
 
-# Verzeichnisschutz: Logs
-<Directory "logs">
-    Require all denied
-</Directory>
+# Verzeichnisschutz: Logs-Verzeichnis
+RedirectMatch 403 ^/logs/
 
 # Verzeichnisschutz: Config-Dateien
 <Files "config.php">
     Require all denied
 </Files>
+
+<FilesMatch "^config.*\.php$">
+    Require all denied
+</FilesMatch>
 
 # Git-Dateien schützen
 <FilesMatch "^\.git">
@@ -46,12 +45,10 @@
     Require all denied
 </FilesMatch>
 
-# PHP-Dateien in bestimmten Verzeichnissen blockieren
-<Directory "uploads">
-    <Files "*.php">
-        Require all denied
-    </Files>
-</Directory>
+# PHP-Dateien in Uploads blockieren
+<FilesMatch "^uploads/.*\.php$">
+    Require all denied
+</FilesMatch>
 
 # HTTPS erzwingen (optional, je nach IONOS-Setup)
 # RewriteEngine On

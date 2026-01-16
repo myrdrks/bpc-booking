@@ -146,7 +146,7 @@ AFTER is_mandatory;
 
 -- Räume (nur wenn noch keine vorhanden)
 INSERT IGNORE INTO rooms (name, description, capacity, min_hours, price_member, price_non_member, google_calendar_id, buffer_before, buffer_after) VALUES
-('CLUB27', 'Perfekt für Lesungen, Konzerte, Podiumsdiskussionen oder Empfänge. Mit Bar, Küche, Klavier & Kamin, Außenterrasse, Highspeed-WLAN, Musikanlage, Mikrofone, Profi-Raumbeschallung, Beamer (HDMI) mit Leinwand.', 80, 3.00, 0.00, 500.00, 'club27@group.calendar.google.com', 15, 15);
+('CLUB27', 'Perfekt für Lesungen, Konzerte, Podiumsdiskussionen oder Empfänge. Mit Bar, Küche, Klavier & Kamin, Außenterrasse, Highspeed-WLAN, Musikanlage, Mikrofone, Profi-Raumbeschallung, Beamer (HDMI) mit Leinwand.', 80, 3.00, 750.00, 750.00, 'club27@group.calendar.google.com', 15, 15);
 
 INSERT IGNORE INTO rooms (name, description, capacity, min_hours, price_member, price_non_member, google_calendar_id, buffer_before, buffer_after) VALUES
 ('Tagungsraum', 'Ideal für Meetings und Workshops. Kostenfrei für Mitglieder, inklusive Technik & Workshopkoffer. Techniknutzung gegen Aufpreis für Nicht-Mitglieder.', 20, 1.00, 0.00, 100.00, 'tagungsraum@group.calendar.google.com', 15, 15);

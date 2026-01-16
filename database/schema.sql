@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS booking_logs (
 
 -- Beispieldaten für Räume
 INSERT INTO rooms (name, description, capacity, price_member, price_non_member, google_calendar_id) VALUES
-('CLUB27', 'Perfekt für Lesungen, Konzerte, Podiumsdiskussionen oder Empfänge. Mit Bar, Küche, Klavier & Kamin, Außenterrasse, Highspeed-WLAN, Musikanlage, Mikrofone, Profi-Raumbeschallung, Beamer (HDMI) mit Leinwand.', 80, 0.00, 500.00, 'club27@group.calendar.google.com'),
+('CLUB27', 'Perfekt für Lesungen, Konzerte, Podiumsdiskussionen oder Empfänge. Mit Bar, Küche, Klavier & Kamin, Außenterrasse, Highspeed-WLAN, Musikanlage, Mikrofone, Profi-Raumbeschallung, Beamer (HDMI) mit Leinwand.', 80, 750.00, 750.00, 'club27@group.calendar.google.com'),
 ('Tagungsraum', 'Ideal für Meetings und Workshops. Kostenfrei für Mitglieder, inklusive Technik & Workshopkoffer. Techniknutzung gegen Aufpreis für Nicht-Mitglieder.', 20, 0.00, 100.00, 'tagungsraum@group.calendar.google.com'),
 ('Club-Lounge', 'Gemütlich. Intim. Inspirierend. Perfekt für kleine Runden, Meetings und vertrauliche Gespräche. Mit Sofas, Sesseln, Plattenspieler, 60-Zoll-Fernseher, Highspeed-WLAN und Getränkekühlschrank.', 20, 0.00, 100.00, 'club-lounge@group.calendar.google.com');
 

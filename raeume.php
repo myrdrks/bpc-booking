@@ -157,14 +157,15 @@ try {
                             <?php if ($room['name'] === 'CLUB27'): ?>
                                 <div class="price-row">
                                     <span>Mitglieder:</span>
-                                    <span class="price-highlight">0 € Raummiete*</span>
+                                    <span class="price-highlight">500 € + Service*</span>
                                 </div>
                                 <div class="price-row">
                                     <span>Nicht-Mitglieder:</span>
-                                    <span class="price-highlight"><?= number_format($room['price_non_member'], 0, ',', '.') ?> €</span>
+                                    <span class="price-highlight">750 € + Service*</span>
                                 </div>
                                 <small style="color: #6c757d; display: block; margin-top: 0.5rem;">
-                                    *zzgl. Servicepauschale 250€
+                                    *Raummiete 750€, Mitglieder: -250€ Rabatt<br>
+                                    zzgl. Servicepauschale 250€
                                 </small>
                                 
                             <?php elseif ($room['name'] === 'Tagungsraum' || $room['name'] === 'Club-Lounge'): ?>

@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  # MySQL Datenbank
+  mysql:
+    image: mysql:8.0
+    container_name: bpc-buchung-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: buchung
+      MYSQL_USER: buchung_user
+      MYSQL_PASSWORD: buchung_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - buchung-network
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
   # PHP-Apache Webserver
   webserver:
     build:
@@ -13,6 +32,8 @@ services:
       - ./:/var/www/html
     networks:
       - buchung-network
+    depends_on:
+      - mysql
     restart: unless-stopped
 
   # Composer für Abhängigkeiten
@@ -31,9 +52,12 @@ networks:
     name: buchung-network
     external: false
 
+volumes:
+  mysql_data:
+
 # Hinweise:
-# 1. MySQL läuft bereits auf dem Host (Port 3306)
-# 2. Stelle sicher, dass DB_HOST in config.php auf 'host.docker.internal' gesetzt ist
+# 1. MySQL läuft im Container (Port 3307 auf Host gemappt)
+# 2. DB_HOST in config.php muss 'mysql' sein (Docker internal)
 # 3. Starte mit: docker compose up -d
 # 4. Öffne: http://localhost:8081
 # 5. Stoppe mit: docker compose down
